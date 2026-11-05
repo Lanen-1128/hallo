@@ -34,7 +34,7 @@
       <textarea id="message" name="message" rows="5" required></textarea>
     </div>
     <br>
-    <button type="submit">送出表單</button>
+    <button type="submit" id="submitBtn">送出表單</button>
   </form>
 
   <p id="responseMsg"></p>
@@ -42,34 +42,43 @@
   <script>
     const scriptURL = 'https://script.google.com/macros/s/AKfycbxkXNvcP4UALZ0T-R-EFWbawueVFZibseu0AuFr910T2lu5T1YczkImEH-sF4DE-S6e-w/exec';
 
-    document.getElementById('contactForm').addEventListener('submit', function(e) {
+    const form = document.getElementById('contactForm');
+    const responseMsg = document.getElementById('responseMsg');
+    const submitBtn = document.getElementById('submitBtn');
+
+    form.addEventListener('submit', function(e) {
       e.preventDefault();
       
-      const responseMsg = document.getElementById('responseMsg');
-      responseMsg.innerText = "發送中，請稍候...";
+      responseMsg.innerText = "資料傳送中，請稍候...";
+      responseMsg.style.color = "blue";
+      submitBtn.disabled = true;
 
-      const data = {
-        name: document.getElementById('name').value,
-        phone: document.getElementById('phone').value,
-        email: document.getElementById('email').value,
-        message: document.getElementById('message').value
-      };
+      const formData = new URLSearchParams();
+      formData.append('name', document.getElementById('name').value);
+      formData.append('phone', document.getElementById('phone').value);
+      formData.append('email', document.getElementById('email').value);
+      formData.append('message', document.getElementById('message').value);
 
       fetch(scriptURL, {
         method: 'POST',
-        mode: 'no-cors', // 避開跨網域問題
+        mode: 'no-cors',
         headers: {
-          'Content-Type': 'application/json',
+          'Content-Type': 'application/x-www-form-urlencoded'
         },
-        body: JSON.stringify(data)
+        body: formData.toString()
       })
       .then(() => {
-        responseMsg.innerText = "表單已成功送出！請檢查你的信箱。";
-        document.getElementById('contactForm').reset();
+        responseMsg.innerText = "表單已成功送出！請至信箱查看收件匣（或垃圾郵件）。";
+        responseMsg.style.color = "green";
+        form.reset();
       })
       .catch(error => {
-        console.error('Error!', error.message);
-        responseMsg.innerText = "送出失敗，請重試。";
+        console.error('Error!', error);
+        responseMsg.innerText = "送出失敗，請確認網路連線。";
+        responseMsg.style.color = "red";
+      })
+      .finally(() => {
+        submitBtn.disabled = false;
       });
     });
   </script>

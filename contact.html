@@ -2,20 +2,9 @@
 <html lang="zh-TW">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>聯絡我們</title>
-  <style>
-    body { font-family: sans-serif; margin: 20px; line-height: 1.6; }
-    nav a { margin-right: 10px; }
-    form div { margin-bottom: 12px; }
-    label { display: block; font-weight: bold; }
-    input, textarea { width: 100%; max-width: 400px; padding: 8px; box-sizing: border-box; }
-    button { padding: 10px 20px; cursor: pointer; background-color: #007bff; color: white; border: none; }
-  </style>
 </head>
 <body>
-
-  <!-- 選單導覽 -->
   <nav>
     <a href="index.html">首頁</a> | 
     <a href="about.html">公司介紹</a> | 
@@ -24,30 +13,65 @@
 
   <h1>聯絡我們</h1>
 
-  <!-- 使用 action 直連 Google Apps Script 部署網址 -->
-  <form action="https://script.google.com/macros/s/AKfycbxkXNvcP4UALZ0T-R-EFWbawueVFZibseu0AuFr910T2lu5T1YczkImEH-sF4DE-S6e-w/exec" method="POST">
+  <form id="contactForm">
     <div>
-      <label for="name">姓名：</label>
+      <label for="name">姓名：</label><br>
       <input type="text" id="name" name="name" required>
     </div>
-    
+    <br>
     <div>
-      <label for="phone">電話：</label>
+      <label for="phone">電話：</label><br>
       <input type="tel" id="phone" name="phone" required>
     </div>
-    
+    <br>
     <div>
-      <label for="email">EMAIL：</label>
+      <label for="email">EMAIL：</label><br>
       <input type="email" id="email" name="email" required>
     </div>
-    
+    <br>
     <div>
-      <label for="message">聯絡內容：</label>
+      <label for="message">聯絡內容：</label><br>
       <textarea id="message" name="message" rows="5" required></textarea>
     </div>
-    
+    <br>
     <button type="submit">送出表單</button>
   </form>
 
+  <p id="responseMsg"></p>
+
+  <script>
+    const scriptURL = 'https://script.google.com/macros/s/AKfycbxkXNvcP4UALZ0T-R-EFWbawueVFZibseu0AuFr910T2lu5T1YczkImEH-sF4DE-S6e-w/exec';
+
+    document.getElementById('contactForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      const responseMsg = document.getElementById('responseMsg');
+      responseMsg.innerText = "發送中，請稍候...";
+
+      const data = {
+        name: document.getElementById('name').value,
+        phone: document.getElementById('phone').value,
+        email: document.getElementById('email').value,
+        message: document.getElementById('message').value
+      };
+
+      fetch(scriptURL, {
+        method: 'POST',
+        mode: 'no-cors', // 避開跨網域問題
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data)
+      })
+      .then(() => {
+        responseMsg.innerText = "表單已成功送出！請檢查你的信箱。";
+        document.getElementById('contactForm').reset();
+      })
+      .catch(error => {
+        console.error('Error!', error.message);
+        responseMsg.innerText = "送出失敗，請重試。";
+      });
+    });
+  </script>
 </body>
 </html>
